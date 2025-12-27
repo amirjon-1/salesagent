@@ -1,4 +1,4 @@
-import google.generativeai as genai
+from google import genai
 import os
 import json
 from typing import Dict, Any, Optional
@@ -12,8 +12,6 @@ from db.db import db
 
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-
 class BaseAgent:
     #parent class for all agents
     #handles common functionality like logging interactions to the database
@@ -24,13 +22,9 @@ class BaseAgent:
         self.role = role
         self.temperature = temperature
 
-        self.model = genai.GenerativeModel(
-            'gemini-2.5-flash',
-            generation_config = {
-                "temperature": temperature,
-                "max_output_tokens": 8000,
-            }
-        )
+        self.client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+        self.model_name = "gemini-2.5-flash"
+
 
     def execute(self, task: str, context: Dict[str, Any]) -> Dict[str, Any]:
         #each agent must implement its own execute method
@@ -41,7 +35,14 @@ class BaseAgent:
         start_time = time.time()
 
         try:
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+                config={
+                    "temperature": self.temperature,
+                    "max_output_tokens": 8000
+                }
+            )
             
             duration = int((time.time() - start_time) * 1000)
 
