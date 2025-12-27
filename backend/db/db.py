@@ -174,7 +174,7 @@ class Database:
         #logs an agent action
 
         query = """
-            INSERT INTO agent_logs (
+            INSERT INTO agent_activity (
                 agent_name, action, lead_id, input_data, output_data, 
                 duration_ms, success, error_message
             )
