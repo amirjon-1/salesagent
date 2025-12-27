@@ -33,8 +33,8 @@ class BaseAgent:
         )
 
     def execute(self, task: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        #main method to execute the agent's task
-        raise
+        #each agent must implement its own execute method
+        raise NotImplementedError(f"{self.name} must implement execute()")
 
     def call_llm(self, prompt: str, lead_id: str = None) -> str:
         #calls the LLM with the given prompt and returns the response text
@@ -74,5 +74,48 @@ class BaseAgent:
             )
             print("error calling LLM:", e)
             raise 
+    
+    def call_llm_json(self, prompt: str, lead_id: str = None) -> Dict:
+        #calls the LLM and expects a JSON response
+        json_prompt = f"""{prompt}
+        CRITICAL: You MUST return ONLY valid JSON. No markdown code blocks, no explanations, just pure JSON.
+        Your response should start with {{ and end with }}."""
+        
+        response_text = self.call_llm(json_prompt, lead_id=lead_id)
+
+        try:
+            cleaned = response_text.strip()
+
+            if cleaned.startswith("```json"):
+                cleaned = cleaned[7:]
+            elif cleaned.startswith("```"):
+                cleaned = cleaned[3:]
+
+            if cleaned.endswith("```"):
+                cleaned = cleaned[:-3]
+            
+            cleaned = cleaned.strip()
+
+            return json.loads(cleaned)
+        except json.JSONDecodeError as e:
+            print("error parsing JSON from LLM response:", e)
+            db.log_agent(
+                agent_name=self.name,
+                action="parse_llm_json_fail",
+                lead_id=lead_id,
+                input_data={"response_text": response_text[:200]},
+                output_data={"raw_response": response_text[:500]},
+                success=False,
+                error_message=f"JSON parse error: {str(e)}"
+            )
+
+            return {
+                "error": "json_parse_error",
+                "raw_response": response_text,
+                "agent": self.name,
+                "parse_error": str(e)
+            }
+
+
 
 
