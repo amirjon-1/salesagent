@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from database.db import db
+from db.db import db
 
 load_dotenv()
 
@@ -115,7 +115,6 @@ class BaseAgent:
                 "agent": self.name,
                 "parse_error": str(e)
             }
-
 
 
 
