@@ -28,7 +28,7 @@ class BaseAgent:
 
     def execute(self, task: str, context: Dict[str, Any]) -> Dict[str, Any]:
         #each agent must implement its own execute method
-        raise NotImplementedError(f"{self.name} must implement execute()")
+        raise NotImplementedError("each agent must implement execute()")
 
     def call_llm(self, prompt: str, lead_id: str = None) -> str:
         #calls the LLM with the given prompt and returns the response text
