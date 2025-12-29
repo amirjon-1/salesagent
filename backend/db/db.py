@@ -116,10 +116,12 @@ class Database:
 
         query = """
             INSERT INTO lead_profiles (
-                lead_id, company_description, tech_stack, 
-                recent_news, pain_points, research_completed_at
+                lead_id, company_description, tech_stack, recent_news, pain_points,
+                competitors, funding_stage, likely_challenges,
+                contact_background, communication_style, contact_cares_about,
+                research_completed_at
             )
-            VALUES (%s, %s, %s, %s, %s, NOW())
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
             RETURNING *
         """
 
@@ -128,7 +130,13 @@ class Database:
             profile_data.get("company_description"),
             json.dumps(profile_data.get("tech_stack", {})),
             json.dumps(profile_data.get("recent_news", [])),
-            json.dumps(profile_data.get("pain_points", []))
+            json.dumps(profile_data.get("pain_points", [])),
+            json.dumps(profile_data.get('competitors', [])),
+            profile_data.get('funding_stage'),  
+            json.dumps(profile_data.get('likely_challenges', [])),  
+            profile_data.get('contact_background'),  
+            profile_data.get('communication_style'),  
+            json.dumps(profile_data.get('contact_cares_about', [])) 
         )
 
         return self.execute_mutation(query, params)

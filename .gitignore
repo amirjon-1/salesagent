@@ -49,3 +49,12 @@ yarn-error.log*
 .pytest_cache/
 .coverage
 htmlcov/
+
+__pycache__/
+*.py[cod]
+.Python
+venv/
+.env
+node_modules/
+.DS_Store
+*.log
