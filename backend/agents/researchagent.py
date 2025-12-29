@@ -1,5 +1,5 @@
 from .base_agent import BaseAgent
-from typing import Dict, Any
+from typing import Dict, Any, List
 import json
 from datetime import datetime
 
@@ -41,15 +41,21 @@ class ResearchAgent(BaseAgent):
         )   
 
         profile = {
+            # company
             "company_description": company_info.get("description", ""),
+            "company_size": company_info.get("size"),
+            "funding_stage": company_info.get("funding"),
             "tech_stack": company_info.get("tech_stack", {}),
             "recent_news": company_info.get("recent_news", []),
-            "contact_role": person_info.get("role", ""),
+            "competitors": company_info.get("competitors", []),
+            "likely_challenges": company_info.get("likely_challenges", []),
             "contact_background": person_info.get("background", ""),
+            "contact_cares_about": person_info.get("cares_about", []),
             "communication_style": person_info.get("communication_style", "professional"),
             "pain_points": pain_points,
             "research_completed_at": datetime.now().isoformat()
         }
+
 
         print(f"ResearchAgent: Completed research for lead {lead_data['company_name']}")
 

@@ -19,9 +19,16 @@ CREATE TABLE IF NOT EXISTS lead_profiles(
     tech_stack JSONB,
     recent_news JSONB,
     pain_points JSONB,
+    competitors JSONB,
+    funding_stage VARCHAR(100),
+    likely_challenges JSONB,
+    contact_background TEXT,
+    communication_style VARCHAR(200),
+    contact_cares_about JSONB,
     research_completed_at TIMESTAMP, 
     created_at TIMESTAMP DEFAULT NOW()
 );
+
 
 CREATE TABLE IF NOT EXISTS signals(
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

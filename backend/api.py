@@ -6,6 +6,7 @@ import uvicorn
 
 from db.db import db
 from agents.researchagent import ResearchAgent
+from agents.signalagent import SignalAgent
 
 app = FastAPI(
     title="Sales Agents API",
@@ -210,6 +211,43 @@ def get_all_activity():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to retrieve activity logs: {str(e)}")
     
+
+@app.post("/leads/{lead_id}/detect-signals")
+def detect_signals(lead_id: str):
+    #endpoint to run signal detection agent on a lead
+    try:
+        lead = db.get_lead(lead_id)
+        if not lead:
+            raise HTTPException(status_code=404, detail="Lead not found")
+        
+        agent = SignalAgent()
+        signals = agent.execute(lead)
+
+        saved_signals = []
+        for signal in signals:
+            saved = db.create_signal(
+                lead_id=lead_id,
+                signal_type=signal["signal_type"],
+                signal_data=signal["signal_data"],
+                urgency_score=signal["urgency_score"]
+            )
+            saved_signals.append(saved)
+
+        return {
+            "status": "success",
+            "lead_id": lead_id,
+            "signals_detected": len(saved_signals),
+            "detected_signals": saved_signals
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Signal detection failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
 if __name__ == "__main__":
     uvicorn.run(
         "api:app",

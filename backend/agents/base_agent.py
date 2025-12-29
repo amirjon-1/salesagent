@@ -32,12 +32,17 @@ class BaseAgent:
 
     def call_llm(self, prompt: str, lead_id: str = None) -> str:
         #calls the LLM with the given prompt and returns the response text
+
+        full_prompt = f"""You are {self.name}, a specialized AI agent.
+        Your role: {self.role}
+        {prompt}"""
+
         start_time = time.time()
 
         try:
             response = self.client.models.generate_content(
                 model=self.model_name,
-                contents=prompt,
+                contents=full_prompt,
                 config={
                     "temperature": self.temperature,
                     "max_output_tokens": 8000
