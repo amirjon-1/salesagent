@@ -7,6 +7,7 @@ import uvicorn
 from db.db import db
 from agents.researchagent import ResearchAgent
 from agents.signalagent import SignalAgent
+from agents.writeragent import WriterAgent
 
 app = FastAPI(
     title="Sales Agents API",
@@ -246,7 +247,71 @@ def detect_signals(lead_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.post("/leads/{lead_id}/generate-outreach")
+def generate_outreach(lead_id: str):
+    
+    #endpoint to run writer agent on a lead
+    try:
+        lead = db.get_lead(lead_id)
+        if not lead:
+            raise HTTPException(status_code=404, detail="Lead not found")
 
+        profile_query = "SELECT * FROM lead_profiles WHERE lead_id = %s ORDER BY created_at DESC LIMIT 1"
+        profiles = db.execute_query(profile_query, (lead_id,))
+
+        if not profiles:
+            raise HTTPException(status_code=400, detail="No research profile found. Run research first.")
+        
+        profile = profiles[0]
+
+        signals_query = "SELECT * FROM signals WHERE lead_id = %s ORDER BY urgency_score DESC"
+        signals = db.execute_query(signals_query, (lead_id,))
+
+        print("Generating outreach using WriterAgent...")
+
+        agent = WriterAgent()
+        outreach = agent.execute(
+            lead_data=lead,
+            profile_data=profile,
+            signals=signals if signals else None
+        )
+        saved = db.save_outreach(
+            lead_id=lead_id,
+            subject=outreach['subject'],
+            body=outreach['body'],
+            message_type=outreach['message_type']
+        )
+
+        return {
+            "status": "success",
+            "lead_id": lead_id,
+            "outreach": saved,
+            "personalization_score": outreach['personalization_score']
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Outreach generation failed: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/leads/{lead_id}/outreach")
+def get_outreach(lead_id: str):
+    #gets outreach messages for a lead
+    try:
+        query = "SELECT * FROM outreach WHERE lead_id = %s ORDER BY created_at DESC"
+        
+        messages = db.execute_query(query, (lead_id,))
+
+        return {
+            "lead_id": lead_id,
+            "outreach_count": len(messages),
+            "messages": messages
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve outreach messages: {str(e)}")
 
 if __name__ == "__main__":
     uvicorn.run(
