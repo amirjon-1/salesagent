@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Database:
-    #connection pool etc
+    #connection pool, database operations
 
     def __init__(self):
         #retrieve connection string from environment variable
