@@ -54,12 +54,12 @@ SalesAgent AI deploys a coordinated team of AI agents that autonomously:
 
 **Technologies:** Gemini 2.5 Flash, structured JSON outputs
 
-### Signal Agent *(Coming Soon)*
+### Signal Agent
 - Monitors funding announcements, job postings, and news
 - Detects buying signals in real-time
 - Assigns urgency scores (1-10) to opportunities
 
-### Writer Agent *(Coming Soon)*
+### Writer Agent
 - Generates personalized email templates
 - References specific pain points and recent events
 - Adapts tone based on recipient communication style
@@ -148,8 +148,6 @@ leads             -- Basic lead information
 
 ## Future Enhancements
 
-- [ ] Complete Signal Agent (buying trigger detection)
-- [ ] Complete Writer Agent (personalized email generation)
 - [ ] Complete Timing Agent (optimal outreach timing)
 - [ ] Real-time news monitoring via NewsAPI
 - [ ] LinkedIn integration via Proxycurl
