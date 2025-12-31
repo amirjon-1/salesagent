@@ -325,6 +325,10 @@ def run_full_analysis(lead_id: str):
         agent = CoordinatorAgent()
         results = agent.execute(lead, db)
 
+        personalization_score = 0
+        if results.get("outreach"):
+            personalization_score = results["outreach"].get("personalization_score", 0)
+
         return {
             "status": results["status"],
             "lead_id": lead_id,
@@ -332,7 +336,7 @@ def run_full_analysis(lead_id: str):
             "research_completed": "research" in results["steps_completed"],
             "signals_detected": len(results.get("signals", [])),
             "outreach_generated": "outreach" in results["steps_completed"],
-            "personalization_score": results.get("outreach", {}).get("personalization_score", 0),
+            "personalization_score": personalization_score,
             "errors": results.get("errors", [])
         }
     except HTTPException:

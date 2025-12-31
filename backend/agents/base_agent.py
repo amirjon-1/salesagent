@@ -23,7 +23,7 @@ class BaseAgent:
         self.temperature = temperature
 
         self.client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
-        self.model_name = "gemini-2.5-flash"
+        self.model_name = "gemini-2.5-flash-lite"
 
 
     def execute(self, task: str, context: Dict[str, Any]) -> Dict[str, Any]:

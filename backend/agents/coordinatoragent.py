@@ -60,15 +60,23 @@ class CoordinatorAgent(BaseAgent):
             print("CoordinatorAgent: Running SignalAgent...")
 
             signals = self.signal_agent.execute(lead_data)
+            
+            print(f"DEBUG: signals type = {type(signals)}")
+            print(f"DEBUG: signals = {signals}")
 
-
-            for signal in signals:
-                saved_signal = db_instance.create_signal(
-                    lead_id=lead_id,
-                    signal_type=signal['signal_type'],
-                    signal_data=signal['signal_data'],
-                    urgency_score=signal.get('urgency_score'))
-                saved_signals.append(saved_signal)
+            if signals and isinstance(signals, list):
+                for idx, signal in enumerate(signals):
+                    print(f"DEBUG: signal[{idx}] type = {type(signal)}")
+                    if isinstance(signal, dict):
+                        saved_signal = db_instance.create_signal(
+                            lead_id=lead_id,
+                            signal_type=signal.get('signal_type'),
+                            signal_data=signal.get('signal_data'),
+                            urgency_score=signal.get('urgency_score', 5)
+                        )
+                        saved_signals.append(saved_signal)
+                    else:
+                        print(f"⚠️  Skipping non-dict signal: {signal}")
 
             results["signals"] = saved_signals
             results["steps_completed"].append("signals")
