@@ -8,6 +8,7 @@ from db.db import db
 from agents.researchagent import ResearchAgent
 from agents.signalagent import SignalAgent
 from agents.writeragent import WriterAgent
+from agents.coordinatoragent import CoordinatorAgent
 
 app = FastAPI(
     title="Sales Agents API",
@@ -312,6 +313,37 @@ def get_outreach(lead_id: str):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to retrieve outreach messages: {str(e)}")
+
+@app.post("/leads/{lead_id}/full-analysis")
+def run_full_analysis(lead_id: str):
+    #endpoint to run full analysis (research, signal detection, outreach) on a lead
+    try:
+        lead = db.get_lead(lead_id)
+        if not lead:
+            raise HTTPException(status_code=404, detail="Lead not found")
+        
+        agent = CoordinatorAgent()
+        results = agent.execute(lead, db)
+
+        return {
+            "status": results["status"],
+            "lead_id": lead_id,
+            "steps_completed": results["steps_completed"],
+            "research_completed": "research" in results["steps_completed"],
+            "signals_detected": len(results.get("signals", [])),
+            "outreach_generated": "outreach" in results["steps_completed"],
+            "personalization_score": results.get("outreach", {}).get("personalization_score", 0),
+            "errors": results.get("errors", [])
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Full analysis failed: {e}")
+        print(f"❌ Full analysis failed: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 if __name__ == "__main__":
     uvicorn.run(
