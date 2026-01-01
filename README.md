@@ -151,7 +151,7 @@ leads             -- Basic lead information
 - [ ] Complete Timing Agent (optimal outreach timing)
 - [ ] Real-time news monitoring via NewsAPI
 - [ ] LinkedIn integration via Proxycurl
-- [ ] Deploy to AWS (RDS + EC2 + CloudFront)
+- [ ] Deploy to Railway and Vercel (AWS in future)
 - [ ] Add authentication and user management
 - [ ] Implement agent-to-agent communication
 - [ ] A/B testing for outreach templates
